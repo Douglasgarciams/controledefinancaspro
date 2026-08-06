@@ -1,11 +1,11 @@
-name: Android Build
+name: Build Android
 
 on:
-  workflow_dispatch:
-
   push:
     branches:
       - main
+
+  workflow_dispatch:
 
 jobs:
 
@@ -15,27 +15,22 @@ jobs:
 
     steps:
 
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Build APK
-        uses: ArtemSBulgakov/buildozer-action@v1
+        uses: digreatbrian/buildozer-action@v2
         with:
-          command: buildozer android debug
+          workdir: .
+          buildozer_version: stable
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: ControledefinancasPRO-APK
+          name: APK
           path: bin/*.apk
-
-      - name: Build AAB
-        uses: ArtemSBulgakov/buildozer-action@v1
-        with:
-          command: buildozer android release
 
       - name: Upload AAB
         uses: actions/upload-artifact@v4
         with:
-          name: ControledefinancasPRO-AAB
+          name: AAB
           path: bin/*.aab
