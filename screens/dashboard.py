@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from kivy.animation import Animation
 from kivy.graphics import Color, RoundedRectangle
 from kivy.metrics import dp
 from kivy.uix.scrollview import ScrollView
@@ -455,7 +456,7 @@ class DashboardScreen(MDScreen):
             icon="plus",
             pos_hint={
                 "right": 0.94,
-                "y": 0.04,
+                "y": 0.08,
             },
             md_bg_color=(0.10, 0.45, 0.95, 1),
         )
@@ -466,6 +467,9 @@ class DashboardScreen(MDScreen):
 
         self.add_widget(botao_adicionar)
 
+        self.menu_lateral = self.criar_menu_lateral()
+        self.add_widget(self.menu_lateral)
+
     def atualizar_fundo(self, *_):
         self.fundo.pos = self.pos
         self.fundo.size = self.size
@@ -474,24 +478,53 @@ class DashboardScreen(MDScreen):
         cabecalho = MDBoxLayout(
             orientation="vertical",
             size_hint_y=None,
-            height=dp(158),
+            height=dp(116),
             padding=[
-                dp(16),
+                dp(8),
                 dp(8),
                 dp(16),
                 dp(8),
             ],
-            spacing=dp(8),
+            spacing=dp(4),
         )
 
         topo = MDBoxLayout(
             orientation="horizontal",
             size_hint_y=None,
-            height=dp(66),
+            height=dp(52),
+            spacing=dp(4),
         )
+
+        botao_menu = MDIconButton(
+            icon="menu",
+            theme_icon_color="Custom",
+            icon_color=(0.95, 0.97, 1, 1),
+            pos_hint={"center_y": 0.5},
+        )
+
+        botao_menu.bind(
+            on_release=self.abrir_menu_lateral
+        )
+
+        titulo_app = MDLabel(
+            text="ControledefinançasPRO",
+            font_style="H6",
+            bold=True,
+            theme_text_color="Custom",
+            text_color=(0.97, 0.98, 1, 1),
+        )
+
+        topo.add_widget(botao_menu)
+        topo.add_widget(titulo_app)
 
         textos = MDBoxLayout(
             orientation="vertical",
+            padding=[
+                dp(8),
+                0,
+                0,
+                0,
+            ],
         )
 
         hora = datetime.now().hour
@@ -505,10 +538,10 @@ class DashboardScreen(MDScreen):
 
         self.label_saudacao = MDLabel(
             text=saudacao_texto,
-            font_style="H5",
+            font_style="Subtitle1",
             bold=True,
             theme_text_color="Custom",
-            text_color=(0.97, 0.98, 1, 1),
+            text_color=(0.92, 0.94, 0.98, 1),
         )
 
         subtitulo = MDLabel(
@@ -521,123 +554,172 @@ class DashboardScreen(MDScreen):
             text_color=(0.52, 0.59, 0.69, 1),
         )
 
-        textos.add_widget(
-            self.label_saudacao
-        )
+        textos.add_widget(self.label_saudacao)
+        textos.add_widget(subtitulo)
 
-        textos.add_widget(
-            subtitulo
-        )
-
-        topo.add_widget(
-            textos
-        )
-
-        barra_acoes = MDCard(
-            orientation="horizontal",
-            size_hint_y=None,
-            height=dp(62),
-            padding=[
-                dp(8),
-                dp(7),
-                dp(8),
-                dp(7),
-            ],
-            spacing=dp(8),
-            radius=[18, 18, 18, 18],
-            elevation=1,
-            md_bg_color=(0.07, 0.10, 0.17, 1),
-        )
-
-        botao_relatorios = (
-            MDFillRoundFlatIconButton(
-                text="RELATÓRIOS",
-                icon="chart-box-outline",
-                size_hint_x=0.25,
-                height=dp(46),
-                md_bg_color=(0.09, 0.14, 0.23, 1),
-                text_color=(0.90, 0.94, 1, 1),
-                icon_color=(0.36, 0.78, 1, 1),
-            )
-        )
-
-        botao_relatorios.bind(
-            on_release=self.abrir_relatorios
-        )
-
-        botao_alertas = (
-            MDFillRoundFlatIconButton(
-                text="ALERTAS",
-                icon="bell-outline",
-                size_hint_x=0.25,
-                height=dp(46),
-                md_bg_color=(0.09, 0.14, 0.23, 1),
-                text_color=(0.90, 0.94, 1, 1),
-                icon_color=(1.00, 0.70, 0.25, 1),
-            )
-        )
-
-        botao_alertas.bind(
-            on_release=self.abrir_alertas
-        )
-
-        botao_categorias = (
-            MDFillRoundFlatIconButton(
-                text="CATEGORIAS",
-                icon="tag-multiple-outline",
-                size_hint_x=0.25,
-                height=dp(46),
-                md_bg_color=(0.09, 0.14, 0.23, 1),
-                text_color=(0.90, 0.94, 1, 1),
-                icon_color=(0.40, 0.82, 1, 1),
-            )
-        )
-
-        botao_categorias.bind(
-            on_release=self.abrir_categorias
-        )
-
-        botao_configuracoes = (
-            MDFillRoundFlatIconButton(
-                text="CONFIGURAÇÕES",
-                icon="cog-outline",
-                size_hint_x=0.25,
-                height=dp(46),
-                md_bg_color=(0.09, 0.14, 0.23, 1),
-                text_color=(0.90, 0.94, 1, 1),
-                icon_color=(0.72, 0.76, 0.86, 1),
-            )
-        )
-
-        botao_configuracoes.bind(
-            on_release=self.abrir_configuracoes
-        )
-
-        barra_acoes.add_widget(
-            botao_relatorios
-        )
-
-        barra_acoes.add_widget(
-            botao_alertas
-        )
-
-        barra_acoes.add_widget(
-            botao_categorias
-        )
-
-        barra_acoes.add_widget(
-            botao_configuracoes
-        )
-
-        cabecalho.add_widget(
-            topo
-        )
-
-        cabecalho.add_widget(
-            barra_acoes
-        )
+        cabecalho.add_widget(topo)
+        cabecalho.add_widget(textos)
 
         return cabecalho
+
+    def criar_menu_lateral(self):
+        menu = MDCard(
+            orientation="vertical",
+            size_hint=(None, 1),
+            width=dp(300),
+            x=-dp(300),
+            y=0,
+            padding=[
+                dp(14),
+                dp(18),
+                dp(14),
+                dp(18),
+            ],
+            spacing=dp(10),
+            radius=[0, 22, 22, 0],
+            elevation=10,
+            md_bg_color=(0.045, 0.07, 0.13, 1),
+        )
+
+        cabecalho_menu = MDBoxLayout(
+            orientation="horizontal",
+            size_hint_y=None,
+            height=dp(58),
+        )
+
+        titulo_menu = MDLabel(
+            text="ControledefinançasPRO",
+            font_style="Subtitle1",
+            bold=True,
+            theme_text_color="Custom",
+            text_color=(0.97, 0.98, 1, 1),
+        )
+
+        fechar = MDIconButton(
+            icon="close",
+            theme_icon_color="Custom",
+            icon_color=(0.78, 0.82, 0.90, 1),
+        )
+
+        fechar.bind(
+            on_release=self.fechar_menu_lateral
+        )
+
+        cabecalho_menu.add_widget(titulo_menu)
+        cabecalho_menu.add_widget(fechar)
+        menu.add_widget(cabecalho_menu)
+
+        itens_menu = [
+            (
+                "INÍCIO",
+                "home-outline",
+                "dashboard",
+                (0.36, 0.78, 1, 1),
+            ),
+            (
+                "RELATÓRIOS",
+                "chart-box-outline",
+                "relatorios",
+                (0.36, 0.78, 1, 1),
+            ),
+            (
+                "ALERTAS",
+                "bell-outline",
+                "alertas",
+                (1.00, 0.70, 0.25, 1),
+            ),
+            (
+                "CATEGORIAS",
+                "tag-multiple-outline",
+                "categorias",
+                (0.40, 0.82, 1, 1),
+            ),
+            (
+                "CONFIGURAÇÕES",
+                "cog-outline",
+                "configuracoes",
+                (0.72, 0.76, 0.86, 1),
+            ),
+        ]
+
+        for texto, icone, tela, cor in itens_menu:
+            botao = MDFillRoundFlatIconButton(
+                text=texto,
+                icon=icone,
+                size_hint_x=1,
+                size_hint_y=None,
+                height=dp(48),
+                md_bg_color=(0.08, 0.12, 0.20, 1),
+                text_color=(0.92, 0.94, 0.98, 1),
+                icon_color=cor,
+            )
+
+            botao.bind(
+                on_release=(
+                    lambda *_,
+                    nome_tela=tela:
+                    self.navegar_pelo_menu(
+                        nome_tela
+                    )
+                )
+            )
+
+            menu.add_widget(botao)
+
+        menu.add_widget(
+            MDLabel(
+                text=(
+                    "Controle suas finanças "
+                    "de forma simples e inteligente."
+                ),
+                font_style="Caption",
+                halign="center",
+                theme_text_color="Custom",
+                text_color=(0.48, 0.54, 0.64, 1),
+            )
+        )
+
+        return menu
+
+    def abrir_menu_lateral(self, *_):
+        Animation.cancel_all(
+            self.menu_lateral
+        )
+
+        Animation(
+            x=0,
+            duration=0.22,
+            transition="out_quad",
+        ).start(
+            self.menu_lateral
+        )
+
+    def fechar_menu_lateral(self, *_):
+        Animation.cancel_all(
+            self.menu_lateral
+        )
+
+        Animation(
+            x=-self.menu_lateral.width,
+            duration=0.20,
+            transition="in_quad",
+        ).start(
+            self.menu_lateral
+        )
+
+    def navegar_pelo_menu(
+        self,
+        nome_tela,
+    ):
+        self.fechar_menu_lateral()
+
+        if nome_tela == "dashboard":
+            return
+
+        MDApp.get_running_app().ir_para_tela(
+            nome_tela,
+            "left",
+        )
 
     def criar_conteudo(self):
         scroll = ScrollView(
