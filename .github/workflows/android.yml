@@ -2,51 +2,82 @@ name: Android Build
 
 on:
   workflow_dispatch:
+
   push:
     branches:
       - main
 
 jobs:
   build:
-
     runs-on: ubuntu-22.04
 
     container:
       image: kivy/buildozer:latest
 
     steps:
+      - name: Baixar projeto
+        uses: actions/checkout@v4
 
-      - uses: actions/checkout@v4
+      - name: Restaurar chave de assinatura
+        shell: bash
+        run: |
+          echo "${{ secrets.KEYSTORE_BASE64 }}" \
+            | base64 --decode \
+            > controledefinancaspro-upload.jks
 
       - name: Build APK
         shell: bash
         run: |
           set -o pipefail
-          buildozer -v android debug 2>&1 | tee build.log
+          buildozer -v android debug \
+            2>&1 | tee build-apk.log
 
-      - name: Procurar APK
+      - name: Build AAB assinado
+        shell: bash
+        env:
+          P4A_RELEASE_KEYSTORE: ${{ github.workspace }}/controledefinancaspro-upload.jks
+          P4A_RELEASE_KEYSTORE_PASSWD: ${{ secrets.KEYSTORE_PASSWORD }}
+          P4A_RELEASE_KEYALIAS: ${{ secrets.KEY_ALIAS }}
+          P4A_RELEASE_KEYALIAS_PASSWD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          set -o pipefail
+          buildozer -v android release \
+            2>&1 | tee build-aab.log
+
+      - name: Procurar arquivos gerados
         if: always()
+        shell: bash
         run: |
           echo "===== APK ====="
-          find . -name "*.apk"
+          find . -type f -name "*.apk"
 
           echo "===== AAB ====="
-          find . -name "*.aab"
-
-          echo "===== BIN ====="
-          find . -name "bin"
+          find . -type f -name "*.aab"
 
       - name: Upload APK
-        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: ControledefinancasPRO-APK
           path: |
             **/*.apk
+          if-no-files-found: error
+          retention-days: 30
 
-      - name: Upload Log
+      - name: Upload AAB
+        uses: actions/upload-artifact@v4
+        with:
+          name: ControledefinancasPRO-AAB
+          path: |
+            **/*.aab
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Upload logs
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: build-log
-          path: build.log
+          name: build-logs
+          path: |
+            build-apk.log
+            build-aab.log
+          retention-days: 14
