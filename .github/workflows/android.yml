@@ -8,28 +8,34 @@ on:
 
 jobs:
   build:
+
     runs-on: ubuntu-22.04
 
     container:
       image: kivy/buildozer:latest
 
     steps:
+
       - uses: actions/checkout@v4
 
       - name: Build APK
         run: |
-          buildozer -v android debug > build.log 2>&1 || true
+          buildozer -v android debug 2>&1 | tee build.log
 
-      - name: Mostrar arquivos gerados
+      - name: Procurar APK
+        if: always()
         run: |
-          echo "========== BIN =========="
+          echo "===== APK ====="
           find . -name "*.apk"
-          echo "========== AAB =========="
+
+          echo "===== AAB ====="
           find . -name "*.aab"
-          echo "========== BUILD =========="
+
+          echo "===== BIN ====="
           find . -name "bin"
 
       - name: Upload APK
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: ControledefinancasPRO-APK
@@ -37,6 +43,7 @@ jobs:
             **/*.apk
 
       - name: Upload Log
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: build-log
