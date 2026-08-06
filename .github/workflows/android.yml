@@ -25,22 +25,26 @@ jobs:
         run: |
           echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > controledefinancaspro-upload.jks
 
+          mkdir -p .buildozer/android/platform/build-arm64-v8a/dists/financeiro
+
+          cp controledefinancaspro-upload.jks \
+            .buildozer/android/platform/build-arm64-v8a/dists/financeiro/
+
       - name: Build APK (Debug)
         shell: bash
         run: |
           set -o pipefail
           buildozer -v android debug 2>&1 | tee build-apk.log
 
-      - name: Build AAB (Release)
+      - name: Build AAB
         shell: bash
         env:
-          P4A_RELEASE_KEYSTORE: controledefinancaspro-upload.jks
+          P4A_RELEASE_KEYSTORE: .buildozer/android/platform/build-arm64-v8a/dists/financeiro/controledefinancaspro-upload.jks
           P4A_RELEASE_KEYSTORE_PASSWD: ${{ secrets.KEYSTORE_PASSWORD }}
           P4A_RELEASE_KEYALIAS: ${{ secrets.KEY_ALIAS }}
           P4A_RELEASE_KEYALIAS_PASSWD: ${{ secrets.KEY_PASSWORD }}
         run: |
-          set -o pipefail
-          buildozer -v android release 2>&1 | tee build-aab.log
+          buildozer android release
 
       - name: Mostrar arquivos gerados
         if: always()
