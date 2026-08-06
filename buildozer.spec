@@ -6,7 +6,9 @@ package.name = financeiro
 package.domain = com.flet
 
 source.dir = .
+
 source.include_exts = py,png,jpg,jpeg,kv,atlas,json,ttf,txt
+
 source.exclude_dirs = .git,.github,.venv,venv,__pycache__,bin,.buildozer,backups
 
 version = 1.0.0
@@ -17,21 +19,31 @@ orientation = portrait
 
 fullscreen = 0
 
-icon.filename = assets/icon.png
-presplash.filename = assets/splash.png
+# Ative somente quando estes arquivos existirem:
+# icon.filename = assets/icon.png
+# presplash.filename = assets/splash.png
 
-android.api = 35
-android.minapi = 23
-android.ndk = 25b
+android.api = 36
+
+android.minapi = 24
+
+android.ndk_api = 24
+
+android.ndk = 27c
 
 android.permissions = INTERNET,POST_NOTIFICATIONS
 
-android.archs = arm64-v8a,armeabi-v7a
+android.archs = arm64-v8a
 
 android.accept_sdk_license = True
 
-android.release_artifact = aab
 android.debug_artifact = apk
+
+android.release_artifact = aab
+
+android.private_storage = True
+
+android.allow_backup = False
 
 p4a.branch = develop
 
