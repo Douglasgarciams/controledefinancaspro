@@ -20,6 +20,22 @@ jobs:
         run: |
           buildozer -v android debug > build.log 2>&1 || true
 
+      - name: Mostrar arquivos gerados
+        run: |
+          echo "========== BIN =========="
+          find . -name "*.apk"
+          echo "========== AAB =========="
+          find . -name "*.aab"
+          echo "========== BUILD =========="
+          find . -name "bin"
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: ControledefinancasPRO-APK
+          path: |
+            **/*.apk
+
       - name: Upload Log
         uses: actions/upload-artifact@v4
         with:
