@@ -1,36 +1,27 @@
-name: Build Android
+name: Android Build
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
 
-  workflow_dispatch:
-
 jobs:
-
   build:
+    runs-on: ubuntu-22.04
 
-    runs-on: ubuntu-latest
+    container:
+      image: kivy/buildozer:latest
 
     steps:
-
       - uses: actions/checkout@v4
 
       - name: Build APK
-        uses: digreatbrian/buildozer-action@v2
-        with:
-          workdir: .
-          buildozer_version: stable
+        run: |
+          buildozer android debug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: APK
           path: bin/*.apk
-
-      - name: Upload AAB
-        uses: actions/upload-artifact@v4
-        with:
-          name: AAB
-          path: bin/*.aab
