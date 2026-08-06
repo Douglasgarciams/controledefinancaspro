@@ -18,10 +18,10 @@ jobs:
 
       - name: Build APK
         run: |
-          buildozer android debug
+          buildozer --verbose android debug --allow-root
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: APK
-          path: bin/*.ap
+          path: bin/*.apk
