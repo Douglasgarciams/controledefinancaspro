@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Kivy / Buildozer
+.buildozer/
+bin/
+*.apk
+*.aab
+
+# Local databases and backups
+financas.db
+backups/
+*.db-wal
+*.db-shm
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
