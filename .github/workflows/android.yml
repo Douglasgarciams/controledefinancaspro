@@ -9,78 +9,126 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-22.04
 
     container:
       image: kivy/buildozer:latest
 
     steps:
-
-      - name: Checkout
+      - name: Baixar projeto
         uses: actions/checkout@v4
 
-      - name: Restaurar Keystore
+      # =========================================================
+      # RESTAURAR KEYSTORE
+      # =========================================================
+      - name: Restaurar chave de assinatura
         shell: bash
         run: |
-          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > controledefinancaspro-upload.jks
+          echo "${{ secrets.KEYSTORE_BASE64 }}" \
+            | base64 --decode \
+            > "$GITHUB_WORKSPACE/controledefinancaspro-upload.jks"
 
-          mkdir -p .buildozer/android/platform/build-arm64-v8a/dists/financeiro
+          echo "===== VERIFICANDO KEYSTORE ====="
 
-          cp controledefinancaspro-upload.jks \
-            .buildozer/android/platform/build-arm64-v8a/dists/financeiro/
+          if [ ! -s "$GITHUB_WORKSPACE/controledefinancaspro-upload.jks" ]; then
+            echo "ERRO: Keystore não foi restaurada."
+            exit 1
+          fi
 
-      - name: Build APK (Debug)
+          ls -lh "$GITHUB_WORKSPACE/controledefinancaspro-upload.jks"
+
+          echo "Keystore restaurada com sucesso."
+
+      # =========================================================
+      # BUILD APK DEBUG
+      # =========================================================
+      - name: Build APK
         shell: bash
         run: |
           set -o pipefail
-          buildozer -v android debug 2>&1 | tee build-apk.log
 
-      - name: Build AAB
+          buildozer -v android debug \
+            2>&1 | tee build-apk.log
+
+      # =========================================================
+      # BUILD AAB RELEASE ASSINADO
+      # =========================================================
+      - name: Build AAB assinado
         shell: bash
         env:
-          P4A_RELEASE_KEYSTORE: .buildozer/android/platform/build-arm64-v8a/dists/financeiro/controledefinancaspro-upload.jks
+          P4A_RELEASE_KEYSTORE: ${{ github.workspace }}/controledefinancaspro-upload.jks
           P4A_RELEASE_KEYSTORE_PASSWD: ${{ secrets.KEYSTORE_PASSWORD }}
           P4A_RELEASE_KEYALIAS: ${{ secrets.KEY_ALIAS }}
           P4A_RELEASE_KEYALIAS_PASSWD: ${{ secrets.KEY_PASSWORD }}
         run: |
-          buildozer android release
+          set -o pipefail
 
-      - name: Mostrar arquivos gerados
+          echo "===== VERIFICANDO KEYSTORE ANTES DO RELEASE ====="
+
+          test -f "$P4A_RELEASE_KEYSTORE" || {
+            echo "ERRO: Keystore não encontrada."
+            exit 1
+          }
+
+          ls -lh "$P4A_RELEASE_KEYSTORE"
+
+          echo "===== INICIANDO BUILD RELEASE ====="
+
+          buildozer -v android release \
+            2>&1 | tee build-aab.log
+
+      # =========================================================
+      # MOSTRAR ARQUIVOS GERADOS
+      # =========================================================
+      - name: Procurar arquivos gerados
         if: always()
         shell: bash
         run: |
-          echo "================ APK ================"
-          find . -type f -name "*.apk"
+          echo "===== APK ====="
+          find . -type f -name "*.apk" -print
 
-          echo "================ AAB ================"
-          find . -type f -name "*.aab"
+          echo "===== AAB ====="
+          find . -type f -name "*.aab" -print
 
+          echo "===== BIN ====="
+          find bin -maxdepth 2 -type f -print 2>/dev/null || true
+
+      # =========================================================
+      # UPLOAD APK
+      # =========================================================
       - name: Upload APK
-        if: always()
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: ControledefinancasPRO-APK
-          path: "**/*.apk"
-          if-no-files-found: warn
+          path: |
+            **/*.apk
+          if-no-files-found: error
           retention-days: 30
 
+      # =========================================================
+      # UPLOAD AAB
+      # =========================================================
       - name: Upload AAB
-        if: always()
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: ControledefinancasPRO-AAB
-          path: "**/*.aab"
-          if-no-files-found: warn
+          path: |
+            **/*.aab
+          if-no-files-found: error
           retention-days: 30
 
-      - name: Upload Logs
+      # =========================================================
+      # LOGS
+      # =========================================================
+      - name: Upload logs
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: Build-Logs
+          name: build-logs
           path: |
             build-apk.log
             build-aab.log
-          if-no-files-found: warn
+          if-no-files-found: ignore
           retention-days: 14
