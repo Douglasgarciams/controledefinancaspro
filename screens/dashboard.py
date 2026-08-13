@@ -256,12 +256,12 @@ class ItemMovimentacao(MDCard):
         self.orientation = "horizontal"
         self.size_hint_y = None
         self.height = dp(
-            104
+            112
             if tipo == "Despesa"
-            else 84
+            else 92
         )
-        self.padding = dp(12)
-        self.spacing = dp(10)
+        self.padding = [dp(10), dp(10), dp(8), dp(10)]
+        self.spacing = dp(6)
         self.radius = [18, 18, 18, 18]
         self.elevation = 1
         self.md_bg_color = (0.065, 0.09, 0.15, 1)
@@ -282,11 +282,14 @@ class ItemMovimentacao(MDCard):
             icon_color=cor,
             pos_hint={"center_y": 0.5},
             disabled=True,
+            size_hint_x=None,
+            width=dp(42),
         )
 
         informacoes = MDBoxLayout(
             orientation="vertical",
             spacing=dp(2),
+            size_hint_x=1,
         )
 
         informacoes.add_widget(
@@ -345,17 +348,21 @@ class ItemMovimentacao(MDCard):
         valor_label = MDLabel(
             text=valor,
             halign="right",
-            font_style="Subtitle1",
+            valign="middle",
+            font_style="Subtitle2",
             bold=True,
             theme_text_color="Custom",
             text_color=cor,
-            size_hint_x=0.25,
+            size_hint_x=None,
+            width=dp(112),
+            text_size=(dp(112), None),
         )
 
         acoes = MDBoxLayout(
-            orientation="horizontal",
-            adaptive_width=True,
-            spacing=dp(2),
+            orientation="vertical",
+            size_hint_x=None,
+            width=dp(54),
+            spacing=dp(0),
         )
 
         if (

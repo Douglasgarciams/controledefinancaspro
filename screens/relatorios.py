@@ -141,9 +141,9 @@ class CardResumoRelatorio(MDCard):
 
         self.orientation = "vertical"
         self.size_hint_y = None
-        self.height = dp(128)
+        self.height = dp(132)
         self.padding = dp(14)
-        self.spacing = dp(4)
+        self.spacing = dp(5)
         self.radius = [18, 18, 18, 18]
         self.elevation = 1
         self.md_bg_color = (0.07, 0.10, 0.17, 1)
@@ -181,6 +181,8 @@ class CardResumoRelatorio(MDCard):
             text_color=cor,
             size_hint_y=None,
             height=dp(42),
+            shorten=True,
+            shorten_from="right",
         )
 
         self.label_subtitulo = MDLabel(
@@ -222,9 +224,9 @@ class ItemCategoriaRelatorio(MDCard):
 
         self.orientation = "vertical"
         self.size_hint_y = None
-        self.height = dp(112)
-        self.padding = dp(12)
-        self.spacing = dp(7)
+        self.height = dp(122)
+        self.padding = dp(14)
+        self.spacing = dp(8)
         self.radius = [14, 14, 14, 14]
         self.elevation = 1
         self.md_bg_color = (0.07, 0.10, 0.17, 1)
@@ -255,8 +257,11 @@ class ItemCategoriaRelatorio(MDCard):
         valor = MDLabel(
             text=formatar_moeda(total),
             halign="right",
+            valign="middle",
             bold=True,
-            size_hint_x=0.35,
+            size_hint_x=None,
+            width=dp(118),
+            text_size=(dp(118), None),
             theme_text_color="Custom",
             text_color=(0.96, 0.45, 0.48, 1),
         )
@@ -534,12 +539,12 @@ class RelatoriosScreen(MDScreen):
         cabecalho = MDBoxLayout(
             orientation="horizontal",
             size_hint_y=None,
-            height=dp(76),
+            height=dp(92),
             padding=[
                 dp(10),
-                dp(8),
+                dp(18),
                 dp(16),
-                dp(6),
+                dp(8),
             ],
         )
 
@@ -620,9 +625,27 @@ class RelatoriosScreen(MDScreen):
         return card
 
     def criar_resumo(self):
-        linha = MDBoxLayout(
-            orientation="horizontal",
+        bloco = MDBoxLayout(
+            orientation="vertical",
             adaptive_height=True,
+            spacing=dp(10),
+        )
+
+        self.card_saldo = CardResumoRelatorio(
+            titulo="SALDO DO PERÍODO",
+            valor="R$ 0,00",
+            cor=(0.22, 0.74, 0.97, 1),
+            icone="wallet-outline",
+            subtitulo="Resultado do período",
+        )
+        self.card_saldo.height = dp(146)
+        self.card_saldo.md_bg_color = (0.055, 0.20, 0.40, 1)
+        self.card_saldo.label_valor.font_style = "H4"
+
+        linha_secundaria = MDBoxLayout(
+            orientation="horizontal",
+            size_hint_y=None,
+            height=dp(132),
             spacing=dp(10),
         )
 
@@ -632,7 +655,7 @@ class RelatoriosScreen(MDScreen):
             cor=(0.20, 0.82, 0.55, 1),
             icone="arrow-down-bold-circle-outline",
             subtitulo="Entradas no período",
-            size_hint_x=1 / 3,
+            size_hint_x=0.5,
         )
 
         self.card_despesas = CardResumoRelatorio(
@@ -641,23 +664,16 @@ class RelatoriosScreen(MDScreen):
             cor=(0.96, 0.35, 0.38, 1),
             icone="arrow-up-bold-circle-outline",
             subtitulo="Saídas no período",
-            size_hint_x=1 / 3,
+            size_hint_x=0.5,
         )
 
-        self.card_saldo = CardResumoRelatorio(
-            titulo="Saldo",
-            valor="R$ 0,00",
-            cor=(0.22, 0.74, 0.97, 1),
-            icone="wallet-outline",
-            subtitulo="Resultado do período",
-            size_hint_x=1 / 3,
-        )
+        linha_secundaria.add_widget(self.card_receitas)
+        linha_secundaria.add_widget(self.card_despesas)
 
-        linha.add_widget(self.card_receitas)
-        linha.add_widget(self.card_despesas)
-        linha.add_widget(self.card_saldo)
+        bloco.add_widget(self.card_saldo)
+        bloco.add_widget(linha_secundaria)
 
-        return linha
+        return bloco
 
     def criar_titulo_secao(
         self,
